@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+from argparse import ArgumentParser
+from itertools import groupby
+from sys import stdin
+
+
+def day1(input):
+    c = [sum(int(x) for x in g if x) for _, g in groupby(input, bool)]
+    return max(c), sum(sorted(c)[-3:])
+
+parser = ArgumentParser()
+days = {f.__name__: f for f in globals().values() if type(f) == type(lambda: None)}
+parser.add_argument("day", choices=days)
+a1, a2 = days[parser.parse_args().day](l.strip() for l in stdin)
+print("answer 1:", a1)
+print("answer 2:", a2)
