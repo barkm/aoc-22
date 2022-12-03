@@ -8,9 +8,26 @@ def day1(input):
     c = [sum(int(x) for x in g if x) for _, g in groupby(input, bool)]
     return max(c), sum(sorted(c)[-3:])
 
+
+def day2(input):
+    outcome = {
+        "A": {"X": 3, "Y": 6, "Z": 0},
+        "B": {"X": 0, "Y": 3, "Z": 6},
+        "C": {"X": 6, "Y": 0, "Z": 3},
+    }
+    shape = {"X": 1, "Y": 2, "Z": 3}
+    d = lambda k, v: next(p2 for p2, o in outcome[k].items() if o == v)
+    decision = {p1: {"X": d(p1, 0), "Y": d(p1, 3), "Z": d(p1, 6)} for p1 in outcome}
+    score = lambda l1, l2: outcome[l1][l2] + shape[l2]
+    input = [l.split() for l in input]
+    return (
+        sum(score(l1, l2) for l1, l2 in input),
+        sum(score(l1, decision[l1][l2]) for l1, l2 in input),
+    )
+
 parser = ArgumentParser()
 days = {f.__name__: f for f in globals().values() if type(f) == type(lambda: None)}
 parser.add_argument("day", choices=days)
-a1, a2 = days[parser.parse_args().day](l.strip() for l in stdin)
+a1, a2 = days[parser.parse_args().day]([l.strip() for l in stdin])
 print("answer 1:", a1)
 print("answer 2:", a2)
