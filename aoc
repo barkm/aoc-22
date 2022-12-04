@@ -37,6 +37,16 @@ def day3(input):
     )
 
 
+def day4(input):
+    c = lambda r1, r2: r1[0] >= r2[0] and r1[1] <= r2[1]
+    o = lambda r1, r2: max(r1[0], r2[0]) <= min(r1[1], r2[1])
+    pairs = [[[int(x) for x in p.split("-")] for p in l.split(",")] for l in input]
+    return (
+        sum(c(r1, r2) or c(r2, r1) for r1, r2 in pairs),
+        sum(o(r1, r2) for r1, r2 in pairs),
+    )
+
+
 parser = ArgumentParser()
 days = {f.__name__: f for f in globals().values() if type(f) == type(lambda: None)}
 parser.add_argument("day", choices=days)
