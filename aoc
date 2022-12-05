@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
+from copy import deepcopy
 from functools import reduce
-from itertools import groupby
+from itertools import dropwhile, groupby, takewhile
 from sys import stdin
 
 
@@ -47,9 +48,30 @@ def day4(input):
     )
 
 
+def day5(input):
+    stacks = [
+        [x for x in s[::-1] if x != " "]
+        for s in zip(
+            *[[x for x in l[1::4]] for l in takewhile(lambda l: l[1] != "1", input)]
+        )
+    ]
+    moves = [
+        [int(x) for x in l.split() if x.isdigit()]
+        for l in dropwhile(lambda l: not l.startswith("m"), input)
+    ]
+    cm9000 = lambda n, s: [s.pop() for _ in range(n)]
+    cm9001 = lambda n, s: cm9000(n, s)[::-1]
+
+    def unload(crane):
+        ss = deepcopy(stacks)
+        for n, s, t in moves:
+            ss[t - 1].extend(crane(n, ss[s - 1]))
+        return "".join([s[-1] for s in ss])
+
+    return unload(cm9000), unload(cm9001)
+
+
 parser = ArgumentParser()
 days = {f.__name__: f for f in globals().values() if type(f) == type(lambda: None)}
 parser.add_argument("day", choices=days)
-a1, a2 = days[parser.parse_args().day]([l.strip() for l in stdin])
-print("answer 1:", a1)
-print("answer 2:", a2)
+print(days[parser.parse_args().day]([l.strip("\n") for l in stdin]))
