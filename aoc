@@ -71,6 +71,22 @@ def day5(input):
     return unload(cm9000), unload(cm9001)
 
 
+def day6(input):
+    input = input[0]
+    first_unique = (
+        lambda n: len(
+            list(
+                takewhile(
+                    lambda s: len(set(s)) != n,
+                    [input[i : i + n] for i in range(0, len(input) - n + 1)],
+                )
+            )
+        )
+        + n
+    )
+    return first_unique(4), first_unique(14)
+
+
 parser = ArgumentParser()
 days = {f.__name__: f for f in globals().values() if type(f) == type(lambda: None)}
 parser.add_argument("day", choices=days)
