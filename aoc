@@ -87,6 +87,31 @@ def day6(input):
     return first_unique(4), first_unique(14)
 
 
+def day7(input):
+    files = {}
+    path = ()
+    for line in input:
+        t, *r = line.split()
+        if path not in files:
+            files[path] = 0
+        if t == "$" and r[0] == "cd":
+            if r[1] == "/":
+                path = ("/")
+            elif r[1] == "..":
+                path = path[:-1]
+            else:
+                path = path + (r[1])
+        elif t.isnumeric():
+            for f in files:
+                if path[:len(f)] == f:
+                    files[f] += int(t)
+    sizes = files.values()
+    return (
+        sum([s for s in sizes if s < 100000]),
+        min([s for s in sizes if 70000000 - max(sizes) + s > 30000000]),
+    )
+
+
 parser = ArgumentParser()
 days = {f.__name__: f for f in globals().values() if type(f) == type(lambda: None)}
 parser.add_argument("day", choices=days)
