@@ -2,7 +2,8 @@
 from argparse import ArgumentParser
 from copy import deepcopy
 from functools import reduce
-from itertools import dropwhile, groupby, takewhile
+from operator import mul
+from itertools import accumulate, chain, dropwhile, groupby, takewhile
 from sys import stdin
 
 
@@ -96,19 +97,54 @@ def day7(input):
             files[path] = 0
         if t == "$" and r[0] == "cd":
             if r[1] == "/":
-                path = ("/")
+                path = "/"
             elif r[1] == "..":
                 path = path[:-1]
             else:
                 path = path + (r[1])
         elif t.isnumeric():
             for f in files:
-                if path[:len(f)] == f:
+                if path[: len(f)] == f:
                     files[f] += int(t)
     sizes = files.values()
     return (
         sum([s for s in sizes if s < 100000]),
         min([s for s in sizes if 70000000 - max(sizes) + s > 30000000]),
+    )
+
+
+def day8(input):
+    transpose = lambda lines: list(zip(*lines))
+    reverse = lambda lines: [line[::-1] for line in lines]
+    remove_first = lambda lines: [line[1:] for line in lines]
+    tree_line = lambda lines: [
+        remove_first(reverse(accumulate([[t] for t in line]))) for line in lines
+    ]
+    rows = [[int(t) for t in row] for row in input]
+    west = tree_line(rows)
+    east = reverse(tree_line(reverse(rows)))
+    north = transpose(tree_line(transpose(rows)))
+    south = transpose(reverse(tree_line(reverse(transpose(rows)))))
+
+    grid_with_dirs = list(zip(*[chain(*x) for x in [rows, west, east, north, south]]))
+
+    def reduce1(r, *dirs):
+        return any([all([r > t for t in d]) for d in dirs])
+
+    def takewhile_inclusive(p, it):
+        for x in it:
+            yield x
+            if not p(x):
+                break
+
+    def reduce2(r, *dirs):
+        return reduce(
+            mul, [len(list(takewhile_inclusive(lambda t: t < r, d))) for d in dirs]
+        )
+
+    return (
+        sum(reduce1(*t) for t in grid_with_dirs),
+        max(reduce2(*t) for t in grid_with_dirs),
     )
 
 
