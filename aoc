@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from copy import deepcopy
 from functools import reduce
 from operator import mul
-from itertools import accumulate, chain, dropwhile, groupby, takewhile
+from itertools import accumulate, chain, dropwhile, groupby, product, takewhile
 from sys import stdin
 
 
@@ -146,6 +146,42 @@ def day8(input):
         sum(reduce1(*t) for t in grid_with_dirs),
         max(reduce2(*t) for t in grid_with_dirs),
     )
+
+
+def day9(input):
+    def simulate(length):
+        knots = [(0, 0) for _ in range(length)]
+        step_from_dir = {
+            "R": (1, 0),
+            "L": (-1, 0),
+            "U": (0, 1),
+            "D": (0, -1),
+        }
+        tail_steps = list(product([-1, 0, 1], repeat=2))
+        add = lambda p1, p2: (p1[0] + p2[0], p1[1] + p2[1])
+        sub = lambda p1, p2: (p1[0] - p2[0], p1[1] - p2[1])
+        manhattan = lambda p1, p2: sum(map(abs, sub(p1, p2)))
+        max_manhattan = lambda p1, p2: max(map(abs, sub(p1, p2)))
+        visits = set()
+        visits.add(knots[-1])
+        for movement in input:
+            dir, steps = movement.split()
+            steps = int(steps)
+            step = step_from_dir[dir]
+            for _ in range(steps):
+                for i in range(len(knots)):
+                    if i == 0:
+                        knots[i] = add(knots[i], step)
+                    else:
+                        if max_manhattan(knots[i - 1], knots[i]) > 1:
+                            knots[i] = min(
+                                [add(knots[i], tstep) for tstep in tail_steps],
+                                key=lambda p: manhattan(p, knots[i - 1]),
+                            )
+                visits.add(knots[-1])
+        return len(visits)
+
+    return simulate(2), simulate(10)
 
 
 parser = ArgumentParser()
