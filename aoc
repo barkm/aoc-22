@@ -185,6 +185,10 @@ def day9(input):
 
 
 parser = ArgumentParser()
-days = {f.__name__: f for f in globals().values() if type(f) == type(lambda: None)}
+days = {
+    f.__name__: f
+    for f in globals().values()
+    if type(f) == type(lambda: None) and f.__name__.startswith("day")
+}
 parser.add_argument("day", choices=days)
 print(days[parser.parse_args().day]([l.strip("\n") for l in stdin]))
