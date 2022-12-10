@@ -184,6 +184,35 @@ def day9(input):
     return simulate(2), simulate(10)
 
 
+def day10(input):
+    signal = list(
+        accumulate(
+            chain(
+                [1],
+                *[
+                    [0, int(cmd[1])] if len(cmd) == 2 else [0]
+                    for line in input
+                    if (cmd := line.split())
+                ],
+            )
+        )
+    )
+    return (
+        sum([cycle * signal[cycle - 1] for cycle in range(20, 220 + 1, 40)]),
+        "\n".join(
+            [
+                "".join(
+                    [
+                        "#" if abs(signal[40 * row + col] - col) <= 1 else "."
+                        for col in range(40)
+                    ]
+                )
+                for row in range(int(240 / 40))
+            ]
+        ),
+    )
+
+
 parser = ArgumentParser()
 days = {
     f.__name__: f
@@ -191,4 +220,6 @@ days = {
     if type(f) == type(lambda: None) and f.__name__.startswith("day")
 }
 parser.add_argument("day", choices=days)
-print(days[parser.parse_args().day]([l.strip("\n") for l in stdin]))
+p1, p2 = days[parser.parse_args().day]([l.strip("\n") for l in stdin])
+print(p1)
+print(p2)
