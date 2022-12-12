@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
+from collections import defaultdict
 from copy import deepcopy
 from functools import reduce
 from operator import mul
@@ -210,6 +211,44 @@ def day10(input):
                 for row in range(int(240 / 40))
             ]
         ),
+    )
+
+
+def day12(input):
+    input = [list(row) for row in input]
+    marks = {
+        h: (j, i)
+        for j, row in enumerate(input)
+        for i, h in enumerate(row)
+        if h == "S" or h == "E"
+    }
+    start, goal = marks["S"], marks["E"]
+    input[start[0]][start[1]] = "a"
+    input[goal[0]][goal[1]] = "z"
+    position = goal
+    visited, queue = set([position]), [position]
+    distances = defaultdict(lambda: float("inf"))
+    distances[position] = 0
+    while queue:
+        position = queue.pop(0)
+        visited.add(position)
+        i, j = position
+        neighbours = [
+            p
+            for u, v in [[0, 1], [0, -1], [-1, 0], [1, 0]]
+            if (p := (i + u, j + v))
+            and 0 <= p[0] < len(input)
+            and 0 <= p[1] < len(input[i])
+            and ord(input[i][j]) - ord(input[p[0]][p[1]]) <= 1
+            and p not in visited
+        ]
+        distances.update(
+            {p: min(distances[position] + 1, distances[p]) for p in neighbours}
+        )
+        visited.update(neighbours)
+        queue.extend(neighbours)
+    return distances[start], min(
+        d for p, d in distances.items() if input[p[0]][p[1]] == "a"
     )
 
 
